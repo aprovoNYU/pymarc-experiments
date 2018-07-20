@@ -1,2 +1,2 @@
-# pymarc-tools
-Various scripts based on pymarc to process marc files
+# pymarc experiments
+Forked from/based on https://github.com/symac/pymarc-tools
