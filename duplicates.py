@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
 import pymarc
+from pymarc import Record
+
+''' reed's code to sort the fields in numerical order '''
+def sort_record(record):
+    new_record = Record()
+    new_record.leader = deepcopy(record.leader)
+
+    for field in record:
+        new_record.add_ordered_field(field)
+
+    return new_record
 
 ''' create readers for both input files '''
 oclc_file = open('180322-oclc_records.mrc', 'rb')
@@ -39,8 +50,17 @@ obj_ids = []
 for record_id in oclc_ids:
     record = local_records.pop(record_id)
     obj_ids.append(id(record))
-    in_oclc.write(record)
+    new_rec = sort_record(record)
+    in_oclc.write(new_rec)
 in_oclc.close()
+
+''' sort the fields in the 180322-oclc_records.mrc records and write to new file. but maybe I could put this up above '''
+
+oclc_sorted = pymarc.MARCWriter(open('180322-oclc_records_sorted.mrc'))
+for record in oclc_reader:
+    new_oclc_rec = sort_record(record)
+    oclc_sorted.write(new_oclc_rec)
+oclc_sorted.close()
 
 ''' check ids and output all records that did not make it to oclc '''
 local_only = pymarc.MARCWriter(open('aco_local_only.mrc', 'wb+'))
