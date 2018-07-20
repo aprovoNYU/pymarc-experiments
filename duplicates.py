@@ -2,11 +2,14 @@
 
 import pymarc
 from pymarc import Record
+import copy
+
+#AAP to do: possibly add dates and times to file names?
 
 ''' reed's code to sort the fields in numerical order '''
 def sort_record(record):
     new_record = Record()
-    new_record.leader = deepcopy(record.leader)
+    new_record.leader = copy.deepcopy(record.leader)
 
     for field in record:
         new_record.add_ordered_field(field)
@@ -22,6 +25,8 @@ local_reader = list(pymarc.MARCReader(local_file, to_unicode=True, force_utf8=Tr
 
 ''' create list of first aco handle id to appear in each oclc record '''
 oclc_ids = []
+#also sort the records and write them to a new file
+oclc_sorted = pymarc.MARCWriter(open('180322-oclc_records_sorted.mrc', 'wb+'))
 for record in oclc_reader:
     for field in record.get_fields('856'):
         try:
@@ -33,7 +38,9 @@ for record in oclc_reader:
                 break
         except TypeError:
             pass
-
+    new_oclc_rec = sort_record(record)
+    oclc_sorted.write(new_oclc_rec)
+oclc_sorted.close()
 ''' create dictionary of all handle ids present in local records where value is the pymarc record '''
 local_records = {}
 for record in local_reader:
@@ -53,14 +60,6 @@ for record_id in oclc_ids:
     new_rec = sort_record(record)
     in_oclc.write(new_rec)
 in_oclc.close()
-
-''' sort the fields in the 180322-oclc_records.mrc records and write to new file. but maybe I could put this up above '''
-
-oclc_sorted = pymarc.MARCWriter(open('180322-oclc_records_sorted.mrc'))
-for record in oclc_reader:
-    new_oclc_rec = sort_record(record)
-    oclc_sorted.write(new_oclc_rec)
-oclc_sorted.close()
 
 ''' check ids and output all records that did not make it to oclc '''
 local_only = pymarc.MARCWriter(open('aco_local_only.mrc', 'wb+'))

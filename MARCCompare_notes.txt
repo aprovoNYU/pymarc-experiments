@@ -1,0 +1,4 @@
+notes for using MARCCompare in MARCEdit:
+
+has to be done in Windows version.
+first file should be aco-in-oclc file, then worldcat file.
